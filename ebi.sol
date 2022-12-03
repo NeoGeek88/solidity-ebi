@@ -124,11 +124,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _merchantList[_addressToMerchant] = true;
     }
 
-    function getPendingMerchants() public view isOwner(_msgSender()) returns(address[] memory) {
+    function getPendingMerchants() public view returns(address[] memory) {
         return _pendingMerchants;
     }
 
-    function getPendingThridParties() public view isOwner(_msgSender()) returns(address[] memory) {
+    function getPendingThridParties() public view returns(address[] memory) {
         return _pendingThirdParties;
     }
 
@@ -181,7 +181,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _pendingThirdParties.push(_msgSender());
     }
 
-    function getMaxAllowance() public view isOwner(_msgSender()) returns(uint256) {
+    function getMaxAllowance() public view returns(uint256) {
         return _maxAllowance;
     }
 
