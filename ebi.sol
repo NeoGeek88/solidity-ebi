@@ -258,15 +258,17 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      */
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address from = _msgSender();
+        uint256 fromBalance = _balances[from];
+        uint256 handlingFee = handlingRate.numerator*amount / handlingRate.denominator;
+        uint256 totalAmount = amount + handlingFee;
         
-        if (to == _owner) {
+        if (verifyMerchant(to) || verifyThirdParty(to)) {
+            require(fromBalance >= totalAmount, "ERC20: transfer amount exceeds balance");
             _transfer(from, to, amount);
-        }   else if (verifyMerchant(to)) {
-            _transferWithHandling(from, to, amount);
-        }   else {
+            _transfer(from, _owner, handlingFee)
+        } else {
             _transfer(from, to, amount);
         }
-        
         return true;
     }
 
@@ -378,8 +380,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         uint256 handlingFee = (handlingRate.numerator * amount) / handlingRate.denominator;
 
         _spendAllowance(from, spender, amount+tips+handlingFee);
-        transfer(spender, tips);
-        _transferWithHandling(from, to, amount);
+        _transfer(from, to, amount);
+        _transfer(from, spender, tips);
+        _transfer(from, _owner, handlingFee);
         return true;
     }
 
@@ -443,36 +446,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
             _balances[from] = fromBalance - amount;
             // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
             // decrementing then incrementing.
-            _balances[to] += amount;
-        }
-
-        emit Transfer(from, to, amount);
-
-        _afterTokenTransfer(from, to, amount);
-    }
-
-     function _transferWithHandling(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {
-        require(from != address(0), "ERC20: transfer from the zero address");
-        require(to != address(0), "ERC20: transfer to the zero address");
-
-        _beforeTokenTransfer(from, to, amount);
-
-        uint256 fromBalance = _balances[from];
-        uint256 handlingFee = handlingRate.numerator*amount / handlingRate.denominator;
-        uint256 totalAmount = amount + handlingFee;
-
-        require(fromBalance >= totalAmount, "ERC20: transfer amount exceeds balance");
-        unchecked {
-            _balances[from] = fromBalance - totalAmount;
-            // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
-            // decrementing then incrementing.
-            // WRONG CODE!
-            // _balances[_owner] += handlingFee;
-            transfer(_owner, handlingFee);
             _balances[to] += amount;
         }
 
