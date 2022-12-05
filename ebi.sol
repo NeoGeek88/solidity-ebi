@@ -328,7 +328,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
 
     function mint(address account, uint256 amount) public virtual isMerchant(_msgSender()) returns (bool){
-        require(verifyMerchant(account), "ERC20: You can not mint to a machant account");
+        require(!verifyMerchant(account), "ERC20: You can not mint to a machant account");
         unchecked {
             _mint(account, amount);
         }
@@ -344,7 +344,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
 
     function burn(address account, uint256 amount) public virtual isMerchant(_msgSender()) returns (bool){
-        require(verifyMerchant(account), "ERC20: You can not burn from a machant account");
+        require(!verifyMerchant(account), "ERC20: You can not burn from a machant account");
         unchecked {
             _burn(account, amount);
         }
