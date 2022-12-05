@@ -103,6 +103,54 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         tipRate.numerator = tipRateNum;
         
     }
+    
+        /**
+     * @dev Returns the name of the token.
+     */
+    function name() public view virtual override returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev Returns the symbol of the token, usually a shorter version of the
+     * name.
+     */
+    function symbol() public view virtual override returns (string memory) {
+        return _symbol;
+    }
+
+    /**
+     * @dev Returns the number of decimals used to get its user representation.
+     * For example, if `decimals` equals `2`, a balance of `505` tokens should
+     * be displayed to a user as `5.05` (`505 / 10 ** 2`).
+     *
+     * Tokens usually opt for a value of 18, imitating the relationship between
+     * Ether and Wei. This is the value {ERC20} uses, unless this function is
+     * overridden;
+     *
+     * NOTE: This information is only used for display purposes: it in
+     * no way affects any of the arithmetic of the contract, including
+     * {IERC20-balanceOf} and {IERC20-transfer}.
+     */
+    function decimals() public view virtual override returns (uint8) {
+        return 18;
+    }
+
+    /**
+     * @dev See {IERC20-totalSupply}.
+     */
+    function totalSupply() public view virtual override returns (uint256) {
+        return _totalSupply;
+    }
+
+    /**
+     * @dev See {IERC20-balanceOf}.
+     */
+    function balanceOf(address account) public view virtual override returns (uint256) {
+        return _balances[account];
+    }
+    
+    
 
     function getHandlingRate() public view returns(uint8){
         return handlingRate.numerator;
@@ -186,65 +234,18 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
 
     function setMaxAllowance(uint256 maxAllowance) public isOwner(_msgSender()) {
-        _maxAllowance = maxAllowance * 10 ** decimals();
+        _maxAllowance = maxAllowance;
     }
 
     function increaseMaxAllowance(uint256 addedAmount) public isOwner(_msgSender()) {
-        _maxAllowance = _maxAllowance + addedAmount * 10 ** decimals();
+        _maxAllowance = _maxAllowance + addedAmount;
     }
 
     function decreaseMaxAllowance(uint256 subtractedValue) public isOwner(_msgSender()) {
         require(_maxAllowance >= subtractedValue, "ERC20: Max allowance cannot below zero.");
         unchecked {
-            _maxAllowance = _maxAllowance - subtractedValue * 10 ** decimals();
+            _maxAllowance = _maxAllowance - subtractedValue;
         }
-    }
-
-
-    /**
-     * @dev Returns the name of the token.
-     */
-    function name() public view virtual override returns (string memory) {
-        return _name;
-    }
-
-    /**
-     * @dev Returns the symbol of the token, usually a shorter version of the
-     * name.
-     */
-    function symbol() public view virtual override returns (string memory) {
-        return _symbol;
-    }
-
-    /**
-     * @dev Returns the number of decimals used to get its user representation.
-     * For example, if `decimals` equals `2`, a balance of `505` tokens should
-     * be displayed to a user as `5.05` (`505 / 10 ** 2`).
-     *
-     * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei. This is the value {ERC20} uses, unless this function is
-     * overridden;
-     *
-     * NOTE: This information is only used for display purposes: it in
-     * no way affects any of the arithmetic of the contract, including
-     * {IERC20-balanceOf} and {IERC20-transfer}.
-     */
-    function decimals() public view virtual override returns (uint8) {
-        return 18;
-    }
-
-    /**
-     * @dev See {IERC20-totalSupply}.
-     */
-    function totalSupply() public view virtual override returns (uint256) {
-        return _totalSupply;
-    }
-
-    /**
-     * @dev See {IERC20-balanceOf}.
-     */
-    function balanceOf(address account) public view virtual override returns (uint256) {
-        return _balances[account];
     }
 
     /**
@@ -256,18 +257,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - the caller must have a balance of at least `amount`.
      */
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
-        address owner = _msgSender();
+        address from = _msgSender();
         
         if (verifyMerchant(to) || verifyThirdParty(to)) {
-            _transferWithHandling(owner, to, amount);
+            _transferWithHandling(from, to, amount);
         }   else {
-            _transfer(owner, to, amount);
+            _transfer(from, to, amount);
         }
-        return true;
-    }
-
-    function transferFromOwner(address to, uint256 amount) public virtual isOwner(_msgSender()) returns(bool) {
-        _transfer(_msgSender(), to, amount);
         return true;
     }
 
@@ -292,9 +288,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function approve(address thirdParty, uint256 amount) public override returns (bool) {
         if (verifyThirdParty(thirdParty)) {
             // Only allow for trusted third-party in the whitelist.
-            require(amount * 10 ** decimals() <= getMaxAllowance(), "ERC20: Amount exceeds maximum allowance.");
+            require(amount <= getMaxAllowance(), "ERC20: Amount exceeds maximum allowance.");
             unchecked {
-                _approve(_msgSender(), thirdParty, amount * 10 ** decimals());
+                _approve(_msgSender(), thirdParty, amount);
             }
             return true;
         }
@@ -304,7 +300,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function increaseAllowance(address thirdParty, uint256 addedAmount) public virtual returns (bool) {
         if (verifyThirdParty(thirdParty)) {
             // Only allow for trusted third-party in the whitelist.
-            uint256 newAllowance = allowance(_msgSender(), thirdParty) + addedAmount * 10 ** decimals();
+            uint256 newAllowance = allowance(_msgSender(), thirdParty) + addedAmount;
             require(newAllowance <= getMaxAllowance(), "ERC20: Amount exceeds maximum allowance.");
             unchecked {
                 _approve(_msgSender(), thirdParty, newAllowance);
@@ -318,9 +314,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         if (verifyThirdParty(thirdParty)) {
             // Only allow for trusted third-party in the whitelist.
             uint256 currentAllowance = allowance(_msgSender(), thirdParty);
-            require(currentAllowance >= subtractedValue * 10 ** decimals(), "ERC20: Decreased allowance below zero");
+            require(currentAllowance >= subtractedValue, "ERC20: Decreased allowance below zero");
             unchecked {
-                _approve(_msgSender(), thirdParty, currentAllowance - subtractedValue * 10 ** decimals());
+                _approve(_msgSender(), thirdParty, currentAllowance - subtractedValue);
             }
             return true;
         }
@@ -339,7 +335,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function purchaseToken() public payable returns (bool){
         require(msg.value > 0, "You need to buy more than 0 tokens");
         unchecked {
-            _mint(_msgSender(), msg.value * 1000 * 10 ** 18);
+            _mint(_msgSender(), msg.value * 1000);
         }
         return true;
     }
