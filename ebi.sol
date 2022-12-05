@@ -265,7 +265,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         if (verifyMerchant(to) || verifyThirdParty(to)) {
             require(fromBalance >= totalAmount, "ERC20: transfer amount exceeds balance");
             _transfer(from, to, amount);
-            _transfer(from, _owner, handlingFee)
+            _transfer(from, _owner, handlingFee);
         } else {
             _transfer(from, to, amount);
         }
