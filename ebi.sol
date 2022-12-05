@@ -259,11 +259,14 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address from = _msgSender();
         
-        if (verifyMerchant(to) || verifyThirdParty(to)) {
+        if (to == _owner) {
+            _transfer(from, to, amount);
+        }   else if (verifyMerchant(to)) {
             _transferWithHandling(from, to, amount);
         }   else {
             _transfer(from, to, amount);
         }
+        
         return true;
     }
 
@@ -375,7 +378,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         uint256 handlingFee = (handlingRate.numerator * amount) / handlingRate.denominator;
 
         _spendAllowance(from, spender, amount+tips+handlingFee);
-        _transfer(from, spender, tips);
+        transfer(spender, tips);
         _transferWithHandling(from, to, amount);
         return true;
     }
@@ -467,7 +470,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
             _balances[from] = fromBalance - totalAmount;
             // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
             // decrementing then incrementing.
-            _balances[_owner] += handlingFee;
+            // WRONG CODE!
+            // _balances[_owner] += handlingFee;
+            transfer(_owner, handlingFee);
             _balances[to] += amount;
         }
 
