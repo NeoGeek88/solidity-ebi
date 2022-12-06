@@ -86,11 +86,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev Sets the values for {name} and {symbol}.
      *
-     * The default value of {decimals} is 18. To select a different value for
-     * {decimals} you should overload it.
+     * The default value of {decimals} is 18. To select a different value for {decimals} you should overload it.
      *
-     * All two of these values are immutable: they can only be set once during
-     * construction.
+     * Define the contract maker as the {owner}.
+     *
+     * Define the {handlingRate} and {tipRate} that would be used when calculating the taxes and tips.
      */
     constructor(string memory name_, string memory symbol_, uint8 handlingRateNum, uint8 tipRateNum) {
         _name = name_;
@@ -100,11 +100,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         handlingRate.denominator = 100;
         handlingRate.numerator = handlingRateNum;
         tipRate.denominator = 100;
-        tipRate.numerator = tipRateNum;
-        
+        tipRate.numerator = tipRateNum;        
     }
     
-        /**
+    /**
      * @dev Returns the name of the token.
      */
     function name() public view virtual override returns (string memory) {
@@ -112,8 +111,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
 
     /**
-     * @dev Returns the symbol of the token, usually a shorter version of the
-     * name.
+     * @dev Returns the symbol of the token, usually a shorter version of the name.
      */
     function symbol() public view virtual override returns (string memory) {
         return _symbol;
@@ -138,6 +136,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     /**
      * @dev See {IERC20-totalSupply}.
+     *
+     * Define the total number of tokens.
      */
     function totalSupply() public view virtual override returns (uint256) {
         return _totalSupply;
@@ -145,41 +145,65 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     /**
      * @dev See {IERC20-balanceOf}.
+     * 
+     * Return the balance of the specific account.
      */
     function balanceOf(address account) public view virtual override returns (uint256) {
         return _balances[account];
     }
     
-    
-
+    /**
+     * Return the defined handling rate.
+     */
     function getHandlingRate() public view returns(uint8){
         return handlingRate.numerator;
     }
 
+    /**
+     * Return the defined tip rate.
+     */
     function getTipRate() public view returns(uint8){
         return tipRate.numerator;
     }
-
+    
+    /**
+     * Re-define the handling rate.
+     */
     function setHandlingRate(uint8 _rate) public isOwner(_msgSender()) {
         handlingRate.numerator = _rate;
     }
-
+    
+    /**
+     * Re-define the tip rate.
+     */
     function setTipRate(uint8 _rate) public isOwner(_msgSender()) {
         tipRate.numerator = _rate;
     }
 
+    /**
+     * Add new merchant to the merchant list (only contract owner is allowed to execute this function).
+     */
     function addMerchant(address _addressToMerchant) public isOwner(_msgSender()){
         _merchantList[_addressToMerchant] = true;
     }
-
+    
+    /**
+     * Return all the merchants in the pending list. 
+     */
     function getPendingMerchants() public view returns(address[] memory) {
         return _pendingMerchants;
     }
-
+    
+    /**
+     * Return all the third parties in the pending list. 
+     */
     function getPendingThridParties() public view returns(address[] memory) {
         return _pendingThirdParties;
     }
-
+    
+    /**
+     * Add all the merchants in the pending list to the merchant list. 
+     */
     function addAllPendingMerchants() public isOwner(_msgSender()) {
         for(uint i=0; i <_pendingMerchants.length; ++i ) {
             if (!_merchantList[_pendingMerchants[i]]){
@@ -188,7 +212,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         }
         delete _pendingMerchants;
     }
-
+    
+    /**
+     * Add all the third parties in the pending list to the third party list. 
+     */
     function addAllPendingThirdParties() public isOwner(_msgSender()) {
         for(uint i=0; i<_pendingThirdParties.length; ++i) {
             if(!_thirdPartyList[_pendingThirdParties[i]]) {
@@ -198,41 +225,68 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         delete _pendingThirdParties;
     }
-
+    
+    /**
+     * Verify if the given account is merchant and return true or false value. 
+     */
     function verifyMerchant(address _merchantAddress) public view returns(bool) {
         bool merchantIsWhitelisted = _merchantList[_merchantAddress];
         return merchantIsWhitelisted;
     }
-
+    
+    /**
+     * Add new third party to the third party list (only contract owner is allowed to execute this function).
+     */
     function addThirdParty(address _addressToThirdParty) public isOwner(_msgSender()){
         _thirdPartyList[_addressToThirdParty] = true;
     }
-
+    
+    /**
+     * Verify if the given account is third party and return true or false value. 
+     */
     function verifyThirdParty(address _thirdPartyAddress) public view returns(bool) {
         bool thirdPartyIsWhitelisted = _thirdPartyList[_thirdPartyAddress];
         return thirdPartyIsWhitelisted;
     }
-
+    
+    /**
+     * Remove the merchant from the merchant list. 
+     */
     function removeMerchant(address _merchantAddress) public isOwner(_msgSender()) {
         _merchantList[_merchantAddress] = false;
     }
-
+    
+    /**
+     * Remove the third party from the third party list. 
+     */
     function removeThirdParty(address _thirdPartyAddress) public isOwner(_msgSender()) {
         _thirdPartyList[_thirdPartyAddress] = false;
     }
-
+    
+    /**
+     * Request to become a merchant account.
+     */
     function requestMerchant() public notMerchant(_msgSender()) {
         _pendingMerchants.push(_msgSender());
     }
-
+    
+    /**
+     * Request to become a third party account.
+     */
     function requestThirdParty() public notThirdParty(_msgSender()) {
         _pendingThirdParties.push(_msgSender());
     }
 
+    /**
+     * Return the defined maximum allowance.
+     */
     function getMaxAllowance() public view returns(uint256) {
         return _maxAllowance;
     }
-
+    
+    /**
+     * Re-define maximum allowance.
+     */
     function setMaxAllowance(uint256 maxAllowance) public isOwner(_msgSender()) {
         _maxAllowance = maxAllowance;
     }
@@ -255,6 +309,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * - `to` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
+     * 
+     * 
      */
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address from = _msgSender();
@@ -288,8 +344,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * Requirements:
      *
      * - `spender` cannot be the zero address.
+     * - `amount` cannot be more than the defined maximum allowance.
      */
-
     function approve(address thirdParty, uint256 amount) public override returns (bool) {
         if (verifyThirdParty(thirdParty)) {
             // Only allow for trusted third-party in the whitelist.
@@ -302,6 +358,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return false;
     }
 
+    /**
+     *
+     * Requirements:
+     *
+     * - `thirdParty` cannot be the zero address and have to be listed in the third party list.
+     * - the new balance cannot be more than the defined maximum allowance.
+     */
     function increaseAllowance(address thirdParty, uint256 addedAmount) public virtual returns (bool) {
         if (verifyThirdParty(thirdParty)) {
             // Only allow for trusted third-party in the whitelist.
@@ -314,7 +377,14 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         }
         return false;
     }
-
+    
+    /**
+     *
+     * Requirements:
+     *
+     * - `thirdParty` cannot be the zero address and have to be listed in the third party list.
+     * - the new balance cannot be less than zero.
+     */
     function decreaseAllowance(address thirdParty, uint256 subtractedValue) public virtual returns (bool) {
         if (verifyThirdParty(thirdParty)) {
             // Only allow for trusted third-party in the whitelist.
