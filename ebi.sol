@@ -1,11 +1,22 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/ERC20.sol)
 
+/**
+ * CMPT789 Project - Blockchain & Smart contracts
+ * The contract uses OpenZeppelin Contract skeleton and modified to meet the need of our project.
+ */
+
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
+import "./extensions/IERC20.sol";
+import "./extensions/IERC20Metadata.sol";
+import "./extensions/Context.sol";
+/**
+ * To use newest version of the extensions, please replace the import file with the following line:
+ * import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+ * import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+ * import "@openzeppelin/contracts/utils/Context.sol";
+ */
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -58,26 +69,41 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     Rational private handlingRate;
     Rational private tipRate;
 
+    /**
+     * Modifier to determine if the address is in the merchant address list.
+     */
     modifier isMerchant(address _address) {
         require(_merchantList[_address], "You need to be a merchant");
         _;
     }
 
+    /**
+     * Modifier to determine if the address is in the third party address list.
+     */
     modifier isThirdParty(address _address) {
         require(_thirdPartyList[_address], "You need to be an authorized third-party.");
         _;
     }
 
+    /**
+     * Modifier to determine if the address is in the contract owner.
+     */
     modifier isOwner(address _address) {
         require(_address == _owner, "You need to be the owner.");
         _;
     }
 
+    /**
+     * Modifier to determine if the address is NOT in the merchant address list.
+     */
     modifier notMerchant(address _address) {
         require(!_merchantList[_address], "You are already a merchant.");
         _;
     }
 
+    /**
+     * Modifier to determine if the address is NOT in the third party address list.
+     */
     modifier notThirdParty(address _address) {
         require(!_thirdPartyList[_address], "You are already a third party.");
         _;
@@ -179,13 +205,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function setTipRate(uint8 _rate) public isOwner(_msgSender()) {
         tipRate.numerator = _rate;
     }
-
-    /**
-     * Add new merchant to the merchant list (only contract owner is allowed to execute this function).
-     */
-    function addMerchant(address _addressToMerchant) public isOwner(_msgSender()){
-        _merchantList[_addressToMerchant] = true;
-    }
     
     /**
      * Return all the merchants in the pending list. 
@@ -202,7 +221,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
     
     /**
-     * Add all the merchants in the pending list to the merchant list. 
+     * Add all the merchants in the pending list to the merchant list. (only contract owner is allowed to execute this function)
      */
     function addAllPendingMerchants() public isOwner(_msgSender()) {
         for(uint i=0; i <_pendingMerchants.length; ++i ) {
@@ -214,7 +233,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
     
     /**
-     * Add all the third parties in the pending list to the third party list. 
+     * Add all the third parties in the pending list to the third party list. (only contract owner is allowed to execute this function)
      */
     function addAllPendingThirdParties() public isOwner(_msgSender()) {
         for(uint i=0; i<_pendingThirdParties.length; ++i) {
@@ -224,6 +243,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         }
 
         delete _pendingThirdParties;
+    }
+
+    /**
+     * Add new merchant to the merchant list (only contract owner is allowed to execute this function).
+     */
+    function addMerchant(address _addressToMerchant) public isOwner(_msgSender()){
+        _merchantList[_addressToMerchant] = true;
     }
     
     /**
@@ -250,51 +276,57 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
     
     /**
-     * Remove the merchant from the merchant list. 
+     * Remove the merchant from the merchant list. (only contract owner is allowed to execute this function)
      */
     function removeMerchant(address _merchantAddress) public isOwner(_msgSender()) {
         _merchantList[_merchantAddress] = false;
     }
     
     /**
-     * Remove the third party from the third party list. 
+     * Remove the third party from the third party list. (only contract owner is allowed to execute this function)
      */
     function removeThirdParty(address _thirdPartyAddress) public isOwner(_msgSender()) {
         _thirdPartyList[_thirdPartyAddress] = false;
     }
     
     /**
-     * Request to become a merchant account.
+     * Request to become a merchant account. An existing merchant account cannot request this function.
      */
     function requestMerchant() public notMerchant(_msgSender()) {
         _pendingMerchants.push(_msgSender());
     }
     
     /**
-     * Request to become a third party account.
+     * Request to become a third party account. An existing third party account cannot request this function.
      */
     function requestThirdParty() public notThirdParty(_msgSender()) {
         _pendingThirdParties.push(_msgSender());
     }
 
     /**
-     * Return the defined maximum allowance.
+     * Return the defined maximum allowance a user can authorize a third party to spend.
      */
     function getMaxAllowance() public view returns(uint256) {
         return _maxAllowance;
     }
     
     /**
-     * Re-define maximum allowance.
+     * Re-define maximum allowance. (only contract owner is allowed to execute this function)
      */
     function setMaxAllowance(uint256 maxAllowance) public isOwner(_msgSender()) {
         _maxAllowance = maxAllowance;
     }
 
+    /**
+     * Increase maximum allowance by certain value. (only contract owner is allowed to execute this function)
+     */
     function increaseMaxAllowance(uint256 addedAmount) public isOwner(_msgSender()) {
         _maxAllowance = _maxAllowance + addedAmount;
     }
 
+    /**
+     * Deduct maximum allowance by certain value. (only contract owner is allowed to execute this function)
+     */
     function decreaseMaxAllowance(uint256 subtractedValue) public isOwner(_msgSender()) {
         require(_maxAllowance >= subtractedValue, "ERC20: Max allowance cannot below zero.");
         unchecked {
@@ -310,7 +342,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `to` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      * 
+     * If the transaction is to the verified merchant list or verified third party list, 
+     * we will treat it as purchase transaction and thus deduct taxes.
      * 
+     * Otherwise it will probably be some token transaction between users and we will not 
+     * deduct taxes from the sender.
+     *
      */
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address from = _msgSender();
@@ -318,11 +355,15 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         uint256 handlingFee = handlingRate.numerator*amount / handlingRate.denominator;
         uint256 totalAmount = amount + handlingFee;
         
+        // if the transfer is to the merchant or thrid party, we treat it as a purchase transaction and collect tax
         if (verifyMerchant(to) || verifyThirdParty(to)) {
             require(fromBalance >= totalAmount, "ERC20: transfer amount exceeds balance");
+            // transfer original item value to the merchant
             _transfer(from, to, amount);
+            // transfer tax to the contract owner for tax calculation
             _transfer(from, _owner, handlingFee);
         } else {
+            // otherwise we will only treat it as a transaction between users and will not collect tax
             _transfer(from, to, amount);
         }
         return true;
@@ -345,6 +386,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * - `spender` cannot be the zero address.
      * - `amount` cannot be more than the defined maximum allowance.
+     *
+     * In this case, a user can only authorize a verified third party.
      */
     function approve(address thirdParty, uint256 amount) public override returns (bool) {
         if (verifyThirdParty(thirdParty)) {
@@ -364,6 +407,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * - `thirdParty` cannot be the zero address and have to be listed in the third party list.
      * - the new balance cannot be more than the defined maximum allowance.
+     *
+     * In this case, a user can only increase the allowance for a verified third party.
      */
     function increaseAllowance(address thirdParty, uint256 addedAmount) public virtual returns (bool) {
         if (verifyThirdParty(thirdParty)) {
@@ -384,6 +429,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * - `thirdParty` cannot be the zero address and have to be listed in the third party list.
      * - the new balance cannot be less than zero.
+     *
+     * In this case, a user can only decrease the allowance for a verified third party.
      */
     function decreaseAllowance(address thirdParty, uint256 subtractedValue) public virtual returns (bool) {
         if (verifyThirdParty(thirdParty)) {
@@ -399,6 +446,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
 
 
+    /**
+     * Generate token when user purchase token in-store.
+     * 
+     * The function can only executed by a verified third party.
+     * Also to avoid possible malicious activity, the function prevents a merchant to call this function
+     * and generate tokens for another merchant account.
+     */
     function mint(address account, uint256 amount) public virtual isMerchant(_msgSender()) returns (bool){
         require(!verifyMerchant(account), "ERC20: You can not mint to a machant account");
         unchecked {
@@ -407,6 +461,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return true;
     }
 
+    /**
+     * Payable function to let user generate token directly at a fixed exchange rate at 1:1000 using Ether.
+     */
     function purchaseToken() public payable returns (bool){
         require(msg.value > 0, "You need to buy more than 0 tokens");
         unchecked {
@@ -415,6 +472,18 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return true;
     }
 
+    /**
+     * Burn token from merchant account. This can only execute from a verified merchant account.
+     *
+     * This is normally used to clear tokens after certain accounting procedure. (i.e. monthly ledger check)
+     * The aim is to clear extra token generated and used after a purchase event.
+     *
+     * For example if we set the value for CAD:EBI to 1:1, then after user purchase 100 EBI token and spend them
+     * at store, the store will have both 100CAD and 100EBI. Then during the ledger check we probably want to 
+     * destory these 100EBI since they are already being 'spent' and we already received 100CAD at the very beginning.
+     *
+     * By doing this, the amount of EBI will then be able to reflect the correct value.
+     */
     function burn(address account, uint256 amount) public virtual isMerchant(_msgSender()) returns (bool){
         require(!verifyMerchant(account), "ERC20: You can not burn from a machant account");
         unchecked {
@@ -438,6 +507,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `from` must have a balance of at least `amount`.
      * - the caller must have allowance for ``from``'s tokens of at least
      * `amount`.
+     *
+     * Here we modified it to collect both tips and taxes. Also the function can only execute by a verified third party.
      */
     function transferFrom(
         address from,
@@ -449,41 +520,16 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         uint256 tips = (tipRate.numerator * amount) / tipRate.denominator;
         uint256 handlingFee = (handlingRate.numerator * amount) / handlingRate.denominator;
 
+        // First we check if the user authorized enough allowance for the third party
         _spendAllowance(from, spender, amount+tips+handlingFee);
+        // then we transfer the original amount to the merchant
         _transfer(from, to, amount);
+        // and calculate tips and send to the third party
         _transfer(from, spender, tips);
+        // at last we calculate tax and send it to the contract owner
         _transfer(from, _owner, handlingFee);
         return true;
     }
-
-    /**
-     * @dev Atomically increases the allowance granted to `spender` by the caller.
-     *
-     * This is an alternative to {approve} that can be used as a mitigation for
-     * problems described in {IERC20-approve}.
-     *
-     * Emits an {Approval} event indicating the updated allowance.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     */
-
-
-    /**
-     * @dev Atomically decreases the allowance granted to `spender` by the caller.
-     *
-     * This is an alternative to {approve} that can be used as a mitigation for
-     * problems described in {IERC20-approve}.
-     *
-     * Emits an {Approval} event indicating the updated allowance.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     * - `spender` must have allowance for the caller of at least
-     * `subtractedValue`.
-     */
 
 
     /**
