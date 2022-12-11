@@ -20,13 +20,13 @@ To compile the EBI Token code, first you need to create a file in the Remix IDE 
 
 You can do this in the Remix IDE File Explorer.
 
-<img src="images/1.png" style="zoom:50%;" />
+<img src="images/1.png" style="zoom:25%;" />
 
 
 
 Then you can go to Compiler and compile the code using the latest version of Compiler.
 
-<img src="images/2.png" style="zoom:50%;" />
+<img src="images/2.png" style="zoom:25%;" />
 
 
 
@@ -44,13 +44,13 @@ handingRateNum: The tax percentage. (Our own contract uses 12, this can be chang
 
 tipRateNum: The tips percentage. (Our own contract uses 15, this can be changed later by calling "setTipRate" function)
 
-<img src="images/3.png" style="zoom:50%;" />
+<img src="images/3.png" style="zoom:25%;" />
 
 
 
 After deployment, you will be able to test all the functions in the generated contract at the bottom. To test the function, just put the required parameters,  and click the function name. Note that the account you choose earlier will be the one who actually call the function. Remember to change account to another one in order to test all functions.
 
-<img src="images/4.png" style="zoom:50%;" />
+<img src="images/4.png" style="zoom:25%;" />
 
 
 
@@ -86,11 +86,11 @@ For the Goerli test network, you can get the test Ether from one of the Faucets 
 
 After you have done the preparation, you can go to Remix IDE, and in the Deploy page, select "Injected Provider - MetaMask" as your envionment. The MetaMask may pop up and ask you to sign to confirm the connection. Make sure you have selected the right network, and select the correct account to deploy the contract.
 
-<img src="images/5.png" style="zoom:50%;" />
+<img src="images/5.png" style="zoom:25%;" />
 
 Then if everything is good you can click "Deploy" to proceed. MetaMask will pop up again and ask you to confirm the transaction. Double check all the information and click "Confirm" to confirm the transaction.
 
-<img src="images/6.png" style="zoom:50%;" />
+<img src="images/6.png" style="zoom:25%;" />
 
 
 
