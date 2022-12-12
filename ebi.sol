@@ -493,6 +493,17 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
 
     /**
+     * Withdraw Ether from the contract. This can only execute from the contract owner.
+     */
+    function withdrawEther(address payable to, uint256 amount) public payable isOwner(_msgSender()) returns (bool){
+        require(address(this).balance >= amount, "ERC20: Not enough balance to withdraw");
+        unchecked{
+            to.transfer(amount);
+        }
+        return true;
+    }
+
+    /**
      * @dev See {IERC20-transferFrom}.
      *
      * Emits an {Approval} event indicating the updated allowance. This is not
