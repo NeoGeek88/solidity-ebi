@@ -96,17 +96,17 @@ Then after a while you should see your contract to be deployed. For the Goerli t
 
 After the deployment, you will be able to check the transaction and see the contract address on the Etherscan.
 
-<img src="images/7.png" width="40%" />
+<img src="images/7.png" width="60%" />
 
 
 But when you check the contract, you will see that the code is shown as ByteCode. To convert it to actual code and be able to test on Etherscan, you will have to Verify and Publish your code.
 
-<img src="images/8.png" width="40%" />
+<img src="images/8.png" width="60%" />
 
 
 To do this, you can click "Verify and Publish", and select your envionment and click "Continue".
 
-<img src="images/9.png" width="40%" />
+<img src="images/9.png" width="50%" />
 
 
 Next you will have to upload all your source code in here for verification. You can leave other area as default and click "Verify and Publish".
@@ -116,12 +116,12 @@ Next you will have to upload all your source code in here for verification. You 
 
 If everything works fine, you will see the following message indicate that the code has been verified successfully.
 
-<img src="images/11.png" width="40%" />
+<img src="images/11.png" width="60%" />
 
 
 Then go back to the contract page, you will see that the code page is now showing actual code, plus the endpoint to let you read and write contract.
 
-<img src="images/12.png" width="40%" />
+<img src="images/12.png" width="60%" />
 
 
 ### Test the smart contract:
