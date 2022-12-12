@@ -9,7 +9,7 @@ Code structure:
 - Context.sol: ERC20 ultility functions
 
 ### Our contract on Goerli network:
-Feel free to test our deployed smart contract in Goerli network! Our contract address is: https://goerli.etherscan.io/address/0x1bf8b5704abcfe1156e2022f7d29632222a04548
+Feel free to test our deployed smart contract in Goerli network! Our contract address is: https://goerli.etherscan.io/address/0xea9c8c88f8412e909a9356bd8567aa581298e7ea
 
 ---
 # Deployment and testing Manual
