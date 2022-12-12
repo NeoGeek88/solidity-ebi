@@ -88,8 +88,7 @@ For the Goerli test network, you can get the test Ether from one of the Faucets 
 
 After you have done the preparation, you can go to Remix IDE, and in the Deploy page, select "Injected Provider - MetaMask" as your envionment. The MetaMask may pop up and ask you to sign to confirm the connection. Make sure you have selected the right network, and select the correct account to deploy the contract. If you want to deploy the contract to the test network but did not see any test networks, you can go to Metamask settings and enable "Show test networks" in the advanced tab.
 
-<img src="images/13.png" width="40%" />
-<img src="images/5.png" width="40%" />
+<img src="images/13.png" width="40%" /><img src="images/5.png" width="40%" />
 
 Then if everything is good you can click "Deploy" to proceed. MetaMask will pop up again and ask you to confirm the transaction. Double check all the information and click "Confirm" to confirm the transaction.
 
