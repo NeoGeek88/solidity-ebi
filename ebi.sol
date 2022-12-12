@@ -8,9 +8,9 @@
 
 pragma solidity ^0.8.0;
 
-import "./extensions/IERC20.sol";
-import "./extensions/IERC20Metadata.sol";
-import "./extensions/Context.sol";
+import "./IERC20.sol";
+import "./IERC20Metadata.sol";
+import "./Context.sol";
 /**
  * To use newest version of the extensions, please replace the import file with the following line:
  * import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
