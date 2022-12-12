@@ -2,6 +2,12 @@
 
 An ERC20 compatible token for coffee shop.
 
+Code structure:
+- ebi.sol: our main contract code
+- IERC20.sol: ERC20 standard interface code file
+- IERC20Metadata.sol: ERC20 standard interface code file
+- Context.sol: ERC20 ultility functions
+
 ### Our contract on Goerli network:
 Feel free to test our deployed smart contract in Goerli network! Our contract address is: https://goerli.etherscan.io/address/0x1bf8b5704abcfe1156e2022f7d29632222a04548
 
